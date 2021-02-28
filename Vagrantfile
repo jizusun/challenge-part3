@@ -1,33 +1,32 @@
 # Single box with VirtualBox provider and Puppet provisioning.
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/trusty64"
-  config.vm.network :private_network, ip: "192.168.0.42"
-  config.vm.network "forwarded_port", guest: 80, host: 8080
 
+  config.vm.box = "ubuntu/trusty64"
   config.vm.provider :virtualbox do |vb|
-    vb.customize [
+      vb.customize [
       "modifyvm", :id,
       "--cpuexecutioncap", "50",
       "--memory", "256",
-    ]
+      ]
   end
 
-  # use the puppet example
-  # config.vm.provision :puppet do |puppet|
-  #   puppet.manifests_path = "puppet/manifests"
-  #   puppet.manifest_file = "site.pp"
-  #   puppet.module_path = "puppet/modules"
-  # end
-
-  # use the chef example
-  # config.vm.provision :chef do |chef|
-  #   chef.cookbooks_path = "chef"
-  #   chef.add_recipe 'challenge::default'
-  # end
-
-#   use the ansible example
-  config.vm.provision :ansible do |ansible|
-    ansible.playbook = "ansible/site.yml"
+  config.vm.define "server" do |server|
+    server.vm.hostname= "server"
+    server.vm.network :private_network, ip: "192.168.0.42"
+    server.vm.network :private_network, ip: "10.0.0.2"
+    server.vm.network "forwarded_port", guest: 80, host: 8080
+    # use the ansible example
+    server.vm.provision :ansible do |ansible|
+        ansible.playbook = "ansible/site.yml"
+    end
   end
+
+  config.vm.define "client" do |client|
+    client.vm.hostname= "client"
+    client.vm.network :private_network, ip: "192.168.0.43"
+    client.vm.network :private_network, ip: "10.0.0.3"
+    client.vm.provision "shell", inline: "ping -c 1 192.168.0.42 & ping -c 1 10.0.0.2"
+  end
+
 end
