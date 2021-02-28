@@ -1,2 +1,5 @@
 ---
 # vars file for challenge
+http_host: "ignition"
+http_conf: "ignition.conf"
+http_port: "80"
