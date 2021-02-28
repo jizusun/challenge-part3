@@ -1,0 +1,8 @@
+---
+# tasks file for challenge
+- name: update motd
+  lineinfile: 
+    line: 'Provisioned by ansible!'
+    dest: /etc/motd
+    create: yes
+    state: present
